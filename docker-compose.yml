@@ -153,8 +153,8 @@ services:
       - '--certificatesresolvers.letsencryptresolver.acme.storage=/letsencrypt/acme.json'
       # - '--certificatesresolvers.letsencryptresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory'  # just for testing
     ports:
-      - 80:80
-      - 443:443
+      - 7611:80
+      - 7612:443
     volumes:
       - acme-certs:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
