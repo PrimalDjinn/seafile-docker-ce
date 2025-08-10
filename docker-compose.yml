@@ -1,14 +1,14 @@
 services:
   db:
-    image: mariadb:10.11
+    image: mariadb:${MARIADB_VERSION:-10.11}
     container_name: seafile-mysql
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWD}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWD:-rootpass}
       - MYSQL_LOG_CONSOLE=true
       - MARIADB_AUTO_UPGRADE=1
     volumes:
-      - seafile-db-data:/var/lib/mysql
+      - ${DB_DATA_PATH:-./data/db}:/var/lib/mysql
     networks:
       - seafile-net
     healthcheck:
@@ -23,7 +23,7 @@ services:
         max-file: "3"
 
   memcached:
-    image: memcached:1.6
+    image: memcached:${MEMCACHED_VERSION:-1.6}
     container_name: seafile-memcached
     restart: unless-stopped
     entrypoint: memcached -m 256
@@ -39,7 +39,7 @@ services:
     container_name: seafile
     restart: unless-stopped
     volumes:
-      - seafile-shared-data:/shared
+      - ${SEAFILE_DATA_PATH:-./data/seafile}:/shared
     env_file:
       - .env
     depends_on:
@@ -56,7 +56,7 @@ services:
         max-file: "3"
 
   onlyoffice-documentserver:
-    image: onlyoffice/documentserver:latest
+    image: onlyoffice/documentserver:${ONLYOFFICE_VERSION:-latest}
     restart: unless-stopped
     container_name: seafile-oods
     environment:
@@ -71,13 +71,13 @@ services:
         max-file: "3"
 
   nginx:
-    image: nginx:latest
+    image: nginx:${NGINX_VERSION:-latest}
     container_name: nginx
     restart: unless-stopped
     ports:
-      - "${NGINX_PORT}:80"
+      - "${NGINX_PORT:-8080}:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${NGINX_CONF_PATH:-./nginx.conf}:/etc/nginx/nginx.conf:ro
     depends_on:
       - seafile
       - onlyoffice-documentserver
@@ -97,7 +97,3 @@ networks:
       driver: default
       config:
         - subnet: 172.32.0.0/16
-
-volumes:
-  seafile-db-data:
-  seafile-shared-data:
